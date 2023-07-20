@@ -14,10 +14,10 @@ import { getPipeline, runRoutine } from './api';
       required: false,
     });
 
-    if (address === undefined) {
+    if (address === '') {
       address = 'https://api.dogutech.io'
     }
-    if (timeout === undefined) {
+    if (timeout === '') {
       timeout = String(60 * 60 * 1000);
     }
 
@@ -42,6 +42,7 @@ import { getPipeline, runRoutine } from './api';
 
         switch (pipeline.state) {
           case 'SUCCESS':
+            console.log(`Routine succeeded. Look at the result at dashboard `);
             process.exit(0);
           case 'FAILURE':
           case 'CANCELLED':

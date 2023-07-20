@@ -27,10 +27,11 @@ import { getPipeline, runRoutine } from './api';
 
       switch (pipeline.state) {
         case 'SUCCESS':
+          process.exit(0);
         case 'FAILURE':
         case 'CANCELLED':
         case 'SKIPPED':
-          console.log(pipeline.state);
+          console.log(`Routine failed with state: ${pipeline.state}`);
           clearInterval(checkState);
           return;
       }
