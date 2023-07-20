@@ -5037,10 +5037,10 @@ const api_1 = __nccwpck_require__(8229);
         let timeout = core.getInput('timeout', {
             required: false,
         });
-        if (address === undefined) {
+        if (address === '') {
             address = 'https://api.dogutech.io';
         }
-        if (timeout === undefined) {
+        if (timeout === '') {
             timeout = String(60 * 60 * 1000);
         }
         setTimeout(() => {
@@ -5061,6 +5061,7 @@ const api_1 = __nccwpck_require__(8229);
                 const pipeline = await (0, api_1.getPipeline)(address, projectId, routineId, routinePipelineId);
                 switch (pipeline.state) {
                     case 'SUCCESS':
+                        console.log(`Routine succeeded. Look at the result at dashboard `);
                         process.exit(0);
                     case 'FAILURE':
                     case 'CANCELLED':
