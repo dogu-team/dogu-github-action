@@ -5077,7 +5077,7 @@ const api_1 = __nccwpck_require__(8229);
         }, 5 * 1000);
     }
     catch (error) {
-        core.setFailed(error.response.data.message);
+        core.setFailed(error);
     }
 })();
 
