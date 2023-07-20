@@ -30,7 +30,7 @@ import { getPipeline, runRoutine } from './api';
     try {
       const routine = await runRoutine(address, projectId, routineId);
       routinePipelineId = routine.routinePipelineId;
-      console.log(`[Running] routine-pipeline-id: ${routinePipelineId}`)
+      console.log(`Run routine-pipeline-id: ${routinePipelineId}`)
     }
     catch (error: any) {
       if (error.response) {
@@ -45,11 +45,11 @@ import { getPipeline, runRoutine } from './api';
     const checkState = setInterval(async () => {
       try {
         const pipeline = await getPipeline(address, projectId, routineId, routinePipelineId);
-        console.log(`[State] routine-pipeline-id: ${routinePipelineId}, state: ${pipeline.state}`)
+        console.log(`[${new Date()}] running routine-pipeline-id: ${routinePipelineId}, state: ${pipeline.state}`);
 
         switch (pipeline.state) {
           case 'SUCCESS':
-            console.log(`Routine succeeded. Look at the result at dashboard `);
+            console.log(`Routine succeeded. Look at the result at dashboard`);
             process.exit(0);
           case 'FAILURE':
           case 'CANCELLED':
