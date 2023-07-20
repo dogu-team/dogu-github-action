@@ -5051,6 +5051,7 @@ const api_1 = __nccwpck_require__(8229);
         try {
             const routine = await (0, api_1.runRoutine)(address, projectId, routineId);
             routinePipelineId = routine.routinePipelineId;
+            console.log(`[Running] routine-pipeline-id: ${routinePipelineId}`);
         }
         catch (error) {
             if (error.response) {
@@ -5064,6 +5065,7 @@ const api_1 = __nccwpck_require__(8229);
         const checkState = setInterval(async () => {
             try {
                 const pipeline = await (0, api_1.getPipeline)(address, projectId, routineId, routinePipelineId);
+                console.log(`[State] routine-pipeline-id: ${routinePipelineId}, state: ${pipeline.state}`);
                 switch (pipeline.state) {
                     case 'SUCCESS':
                         console.log(`Routine succeeded. Look at the result at dashboard `);
