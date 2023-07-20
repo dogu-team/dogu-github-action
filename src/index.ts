@@ -58,6 +58,6 @@ import { getPipeline, runRoutine } from './api';
     }, 5 * 1000)
 
   } catch (error: any) {
-    core.setFailed(error.response.data.message);
+    core.setFailed(error);
   }
 })();
