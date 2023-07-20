@@ -11,7 +11,7 @@ type RoutineResult = {
 }
 
 export async function runRoutine(address: string, projectId: string, routineId: string): Promise<RoutineResult> {
-  const result = await axios.post<RoutineResult>(`http://${address}/v1/projects/${projectId}/routines/${routineId}/pipelines`, {
+  const result = await axios.post<RoutineResult>(`${address}/v1/projects/${projectId}/routines/${routineId}/pipelines`, {
     'Authorization': `Bearer ${process.env.DOGU_TOKEN}`,
   })
 
@@ -33,7 +33,7 @@ type PipelieResult = {
 }
 
 export async function getPipeline(address: string, projectId: string, routineId: string, pipelineId: number): Promise<PipelieResult> {
-  const result = await axios.get<PipelieResult>(`http://${address}/v1/projects/${projectId}/routines/${routineId}/pipelines/${pipelineId}`, {
+  const result = await axios.get<PipelieResult>(`${address}/v1/projects/${projectId}/routines/${routineId}/pipelines/${pipelineId}`, {
     headers: {
       'Authorization': `Bearer ${process.env.DOGU_TOKEN}`,
     }

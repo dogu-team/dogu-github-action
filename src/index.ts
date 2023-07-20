@@ -32,7 +32,12 @@ import { getPipeline, runRoutine } from './api';
       routinePipelineId = routine.routinePipelineId;
     }
     catch (error: any) {
-      core.setFailed(error.response.data.message);
+      if (error.response) {
+        core.setFailed(error.response.data.message);
+      }
+      else {
+        core.setFailed(error);
+      }
       return;
     }
 
@@ -49,15 +54,25 @@ import { getPipeline, runRoutine } from './api';
           case 'SKIPPED':
             core.setFailed(`Routine failed with state: ${pipeline.state}`);
             clearInterval(checkState);
-            return;
+            process.exit(1);
         }
       }
       catch (error: any) {
-        core.setFailed(error.response.data.message);
+        if (error.response) {
+          core.setFailed(error.response.data.message);
+        }
+        else {
+          core.setFailed(error);
+        }
       }
     }, 5 * 1000)
 
   } catch (error: any) {
-    core.setFailed(error);
+    if (error.response) {
+      core.setFailed(error.response.data.message);
+    }
+    else {
+      core.setFailed(error);
+    }
   }
 })();
