@@ -4976,14 +4976,14 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.getPipeline = exports.runRoutine = void 0;
 const axios_1 = __importDefault(__nccwpck_require__(8757));
 async function runRoutine(address, projectId, routineId) {
-    const result = await axios_1.default.post(`http://${address}/v1/projects/${projectId}/routines/${routineId}/pipelines`, {
+    const result = await axios_1.default.post(`${address}/v1/projects/${projectId}/routines/${routineId}/pipelines`, {
         'Authorization': `Bearer ${process.env.DOGU_TOKEN}`,
     });
     return result.data;
 }
 exports.runRoutine = runRoutine;
 async function getPipeline(address, projectId, routineId, pipelineId) {
-    const result = await axios_1.default.get(`http://${address}/v1/projects/${projectId}/routines/${routineId}/pipelines/${pipelineId}`, {
+    const result = await axios_1.default.get(`${address}/v1/projects/${projectId}/routines/${routineId}/pipelines/${pipelineId}`, {
         headers: {
             'Authorization': `Bearer ${process.env.DOGU_TOKEN}`,
         }
@@ -5053,7 +5053,12 @@ const api_1 = __nccwpck_require__(8229);
             routinePipelineId = routine.routinePipelineId;
         }
         catch (error) {
-            core.setFailed(error.response.data.message);
+            if (error.response) {
+                core.setFailed(error.response.data.message);
+            }
+            else {
+                core.setFailed(error);
+            }
             return;
         }
         const checkState = setInterval(async () => {
@@ -5068,16 +5073,26 @@ const api_1 = __nccwpck_require__(8229);
                     case 'SKIPPED':
                         core.setFailed(`Routine failed with state: ${pipeline.state}`);
                         clearInterval(checkState);
-                        return;
+                        process.exit(1);
                 }
             }
             catch (error) {
-                core.setFailed(error.response.data.message);
+                if (error.response) {
+                    core.setFailed(error.response.data.message);
+                }
+                else {
+                    core.setFailed(error);
+                }
             }
         }, 5 * 1000);
     }
     catch (error) {
-        core.setFailed(error);
+        if (error.response) {
+            core.setFailed(error.response.data.message);
+        }
+        else {
+            core.setFailed(error);
+        }
     }
 })();
 
