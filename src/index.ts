@@ -2,6 +2,7 @@ import * as core from '@actions/core';
 
 import './types'
 import { getPipeline, runRoutine } from './api';
+import dayjs from 'dayjs';
 
 (async () => {
   try {
@@ -30,7 +31,7 @@ import { getPipeline, runRoutine } from './api';
     try {
       const routine = await runRoutine(address, projectId, routineId);
       routinePipelineId = routine.routinePipelineId;
-      console.log(`Run routine-pipeline-id: ${routinePipelineId}`)
+      console.log(`Spawn project-id: ${projectId}, routine-id: ${routineId} routine-pipeline-id: ${routinePipelineId}`)
     }
     catch (error: any) {
       if (error.response) {
@@ -45,7 +46,7 @@ import { getPipeline, runRoutine } from './api';
     const checkState = setInterval(async () => {
       try {
         const pipeline = await getPipeline(address, projectId, routineId, routinePipelineId);
-        console.log(`[${new Date()}] running routine-pipeline-id: ${routinePipelineId}, state: ${pipeline.state}`);
+        console.log(`[${dayjs().format('YYYY-MM-DDTHH:mm:ssZ[Z]')}] project-id: ${projectId}, routine-id: ${routineId}, routine-pipeline-id: ${routinePipelineId}, state: ${pipeline.state}`);
 
         switch (pipeline.state) {
           case 'SUCCESS':
