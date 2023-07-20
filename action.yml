@@ -1,0 +1,19 @@
+name: 'Dogu Github Action'
+description: 'Dogu Github Action'
+inputs:
+  project-id:
+    required: true
+    description: 'Project ID'
+  routine-id:
+    required: true
+    description: 'Routine ID'
+  address:
+    required: false
+    description: 'API Address'
+  timeout:
+    require: false
+    description: 'Timeout ms'
+
+runs:
+  using: 'node16'
+  main: 'dist/index.js'

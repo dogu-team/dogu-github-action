@@ -1,0 +1,39 @@
+name: Release
+
+on:
+  push:
+    branches: ["main"]
+
+jobs:
+  Release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Build
+        run: |
+          yarn install
+          yarn run build
+
+      - name: Push
+        run: |
+          git config --global user.email "no-reply@dogutech.io"
+          git config --global user.name "Dogu Bot"
+          git add dist
+          git diff-index --quiet HEAD || git commit -m "Release"
+          git push
+
+      - name: Delete old release
+        uses: dev-drprasad/delete-tag-and-release@v1.0
+        with:
+          tag_name: v1.0
+          delete_release: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create new release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v1.0
+          token: ${{ secrets.GITHUB_TOKEN }}
