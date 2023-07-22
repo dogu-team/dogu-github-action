@@ -4983,7 +4983,8 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.getPipeline = exports.runRoutine = void 0;
 const axios_1 = __importDefault(__nccwpck_require__(8757));
 async function runRoutine(address, projectId, routineId) {
-    const result = await axios_1.default.post(`${address}/v1/projects/${projectId}/routines/${routineId}/pipelines`, {
+    console.log(process.env.DOGU_TOKEN, address);
+    const result = await axios_1.default.post(`${address}/v1/projects/${projectId}/routines/${routineId}/pipelines`, undefined, {
         headers: {
             'Authorization': `Bearer ${process.env.DOGU_TOKEN}`,
         }
