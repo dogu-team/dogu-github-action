@@ -11,8 +11,9 @@ type RoutineResult = {
 }
 
 export async function runRoutine(address: string, projectId: string, routineId: string): Promise<RoutineResult> {
-  const result = await axios.post<RoutineResult>(`${address}/v1/projects/${projectId}/routines/${routineId}/pipelines`, {
-    headers: {
+  console.log(process.env.DOGU_TOKEN, address)
+  const result = await axios.post<RoutineResult>(`${address}/v1/projects/${projectId}/routines/${routineId}/pipelines`, undefined, {
+    headers: { 
       'Authorization': `Bearer ${process.env.DOGU_TOKEN}`,
     }
   })
