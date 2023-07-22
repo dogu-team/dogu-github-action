@@ -1,1 +1,1 @@
-{"version":3,"file":"types.d.ts","sourceRoot":"","sources":["file:///home/runner/work/dogu-github-action/dogu-github-action/src/types.ts"],"names":[],"mappings":"AAAA,OAAO,EAAG,CAAA;AAEV,OAAO,CAAC,MAAM,CAAC;IACb,UAAU,MAAM,CAAC;QACf,UAAU,UAAU;YAClB,UAAU,EAAE,MAAM,CAAC;SACpB;KACF;CACF"}
+{"version":3,"file":"types.d.ts","sourceRoot":"","sources":["file:///Users/andoeon/Projects/dogu-github-action/src/types.ts"],"names":[],"mappings":"AAAA,OAAO,EAAG,CAAA;AAEV,OAAO,CAAC,MAAM,CAAC;IACb,UAAU,MAAM,CAAC;QACf,UAAU,UAAU;YAClB,UAAU,EAAE,MAAM,CAAC;SACpB;KACF;CACF"}

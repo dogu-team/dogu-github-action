@@ -1,4 +1,4 @@
-import axios, { AxiosResponse } from "axios";
+import axios from "axios";
 
 type RoutineResult = {
   routinePipelineId: number;
@@ -12,7 +12,9 @@ type RoutineResult = {
 
 export async function runRoutine(address: string, projectId: string, routineId: string): Promise<RoutineResult> {
   const result = await axios.post<RoutineResult>(`${address}/v1/projects/${projectId}/routines/${routineId}/pipelines`, {
-    'Authorization': `Bearer ${process.env.DOGU_TOKEN}`,
+    headers: {
+      'Authorization': `Bearer ${process.env.DOGU_TOKEN}`,
+    }
   })
 
   return result.data;

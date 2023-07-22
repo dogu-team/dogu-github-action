@@ -4984,7 +4984,9 @@ exports.getPipeline = exports.runRoutine = void 0;
 const axios_1 = __importDefault(__nccwpck_require__(8757));
 async function runRoutine(address, projectId, routineId) {
     const result = await axios_1.default.post(`${address}/v1/projects/${projectId}/routines/${routineId}/pipelines`, {
-        'Authorization': `Bearer ${process.env.DOGU_TOKEN}`,
+        headers: {
+            'Authorization': `Bearer ${process.env.DOGU_TOKEN}`,
+        }
     });
     return result.data;
 }
