@@ -31,7 +31,7 @@ import dayjs from 'dayjs';
     try {
       const routine = await runRoutine(address, projectId, routineId);
       routinePipelineId = routine.routinePipelineId;
-      console.log(`Spawn project-id: ${projectId}, routine-id: ${routineId} routine-pipeline-id: ${routinePipelineId}`)
+      console.log(`Spawn pipeline, project-id: ${projectId}, routine-id: ${routineId} routine-pipeline-id: ${routinePipelineId}`)
     }
     catch (error: any) {
       if (error.response) {
@@ -46,16 +46,15 @@ import dayjs from 'dayjs';
     const checkState = setInterval(async () => {
       try {
         const pipeline = await getPipeline(address, projectId, routineId, routinePipelineId);
-        console.log(`[${dayjs().format('YYYY-MM-DDTHH:mm:ssZ[Z]')}] project-id: ${projectId}, routine-id: ${routineId}, routine-pipeline-id: ${routinePipelineId}, state: ${pipeline.state}`);
 
         switch (pipeline.state) {
           case 'SUCCESS':
-            console.log(`Routine succeeded. Look at the result at dashboard`);
+            console.log(`Routine succeeded. Look at the result: ${pipeline.resultUrl}`);
             process.exit(0);
           case 'FAILURE':
           case 'CANCELLED':
           case 'SKIPPED':
-            core.setFailed(`Routine failed with state: ${pipeline.state}`);
+            console.log(`Routine ${pipeline.state.toLowerCase()}. Look at the result: ${pipeline.resultUrl}`);
             clearInterval(checkState);
             process.exit(1);
         }

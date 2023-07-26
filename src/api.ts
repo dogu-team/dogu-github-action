@@ -32,6 +32,7 @@ type PipelieResult = {
   createdAt: Date;
   inProgressAt: Date | null;
   completedAt: Date | null;
+  resultUrl: string;
 }
 
 export async function getPipeline(address: string, projectId: string, routineId: string, pipelineId: number): Promise<PipelieResult> {
