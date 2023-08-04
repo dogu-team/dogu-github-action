@@ -6,11 +6,11 @@ import { API } from './api';
 import { PipelieState } from './types';
 
 
-export async function runRoutine(address: string, projectId: string, routineId: string) {
+export async function runRoutine(apiUrl: string, projectId: string, routineId: string) {
   let routine: API.RunRoutine;
 
   try {
-    routine = await API.runRoutine(address, projectId, routineId);
+    routine = await API.runRoutine(apiUrl, projectId, routineId);
     console.log(`Spawn pipeline, project-id: ${projectId}, routine-id: ${routineId} routine-pipeline-id: ${routine.routinePipelineId}`)
   }
   catch (error: any) {
@@ -23,7 +23,8 @@ export async function runRoutine(address: string, projectId: string, routineId: 
     process.exit(1);
   }
 
-  const client = new WebSocket(`ws://${address}/v1/pipeline-state?projectId=${projectId}&routineId=${routineId}&pipelineId=${routine.routinePipelineId}`, {
+  const apiUrlObj = new URL(apiUrl);
+  const client = new WebSocket(`ws://${apiUrlObj.hostname}/v1/pipeline-state?projectId=${projectId}&routineId=${routineId}&pipelineId=${routine.routinePipelineId}`, {
     headers: {
       'Authorization': `Bearer ${process.env.DOGU_TOKEN}`
     }

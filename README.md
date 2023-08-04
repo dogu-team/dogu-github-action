@@ -12,7 +12,7 @@ Run routine with Github Action!
 
 **Required** Routine ID
 
-### `address`
+### `api-url`
 
 **Default**: `https://api.dogutech.io`
 

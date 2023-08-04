@@ -11,8 +11,8 @@ export module API {
     createdAt: Date;
   }
 
-  export async function runRoutine(address: string, projectId: string, routineId: string): Promise<RunRoutine> {
-    const result = await axios.post<RunRoutine>(`${address}/v1/projects/${projectId}/routines/${routineId}/pipelines`, undefined, {
+  export async function runRoutine(apiUrl: string, projectId: string, routineId: string): Promise<RunRoutine> {
+    const result = await axios.post<RunRoutine>(`${apiUrl}/v1/projects/${projectId}/routines/${routineId}/pipelines`, undefined, {
       headers: {
         'Authorization': `Bearer ${process.env.DOGU_TOKEN}`,
       }

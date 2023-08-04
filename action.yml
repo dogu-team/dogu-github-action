@@ -7,9 +7,9 @@ inputs:
   routine-id:
     required: true
     description: 'Routine ID'
-  address:
+  api-url:
     required: false
-    description: 'API Address'
+    description: 'API URL'
   timeout:
     require: false
     description: 'Timeout ms'
