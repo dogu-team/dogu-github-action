@@ -9772,6 +9772,7 @@ async function runRoutine(apiUrl, projectId, routineId) {
         }
     });
     client.on('error', (error) => {
+        console.error(error);
         core.setFailed(error.toString());
         process.exit(1);
     });
