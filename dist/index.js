@@ -9669,7 +9669,7 @@ const routine_1 = __nccwpck_require__(2964);
             required: false,
         });
         if (address === '') {
-            address = 'https://api.dogutech.io';
+            address = 'api.dogutech.io';
         }
         if (timeout === '') {
             timeout = String(60 * 60 * 1000);
@@ -9771,7 +9771,8 @@ async function runRoutine(address, projectId, routineId) {
         }
     });
     client.on('error', (error) => {
-        console.warn(error);
+        core.setFailed(error.toString());
+        process.exit(1);
     });
 }
 exports.runRoutine = runRoutine;
