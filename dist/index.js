@@ -9611,8 +9611,8 @@ exports.API = void 0;
 const axios_1 = __importDefault(__nccwpck_require__(8757));
 var API;
 (function (API) {
-    async function runRoutine(address, projectId, routineId) {
-        const result = await axios_1.default.post(`${address}/v1/projects/${projectId}/routines/${routineId}/pipelines`, undefined, {
+    async function runRoutine(apiUrl, projectId, routineId) {
+        const result = await axios_1.default.post(`${apiUrl}/v1/projects/${projectId}/routines/${routineId}/pipelines`, undefined, {
             headers: {
                 'Authorization': `Bearer ${process.env.DOGU_TOKEN}`,
             }
@@ -9662,20 +9662,20 @@ const routine_1 = __nccwpck_require__(2964);
     try {
         const projectId = core.getInput('project-id');
         const routineId = core.getInput('routine-id');
-        let address = core.getInput('address', {
+        let apiUrl = core.getInput('api-url', {
             required: false,
         });
         let timeout = core.getInput('timeout', {
             required: false,
         });
-        if (address === '') {
-            address = 'api.dogutech.io';
+        if (apiUrl === '') {
+            apiUrl = 'https://api.dogutech.io';
         }
         if (timeout === '') {
             timeout = String(60 * 60 * 1000);
         }
         (0, timeout_1.setExitTimeout)(Number(timeout));
-        await (0, routine_1.runRoutine)(address, projectId, routineId);
+        await (0, routine_1.runRoutine)(apiUrl, projectId, routineId);
     }
     catch (error) {
         if (error.response) {
@@ -9728,10 +9728,10 @@ __nccwpck_require__(5077);
 const core = __importStar(__nccwpck_require__(2186));
 const ws_1 = __importDefault(__nccwpck_require__(8867));
 const api_1 = __nccwpck_require__(8229);
-async function runRoutine(address, projectId, routineId) {
+async function runRoutine(apiUrl, projectId, routineId) {
     let routine;
     try {
-        routine = await api_1.API.runRoutine(address, projectId, routineId);
+        routine = await api_1.API.runRoutine(apiUrl, projectId, routineId);
         console.log(`Spawn pipeline, project-id: ${projectId}, routine-id: ${routineId} routine-pipeline-id: ${routine.routinePipelineId}`);
     }
     catch (error) {
@@ -9743,7 +9743,8 @@ async function runRoutine(address, projectId, routineId) {
         }
         process.exit(1);
     }
-    const client = new ws_1.default(`ws://${address}/v1/pipeline-state?projectId=${projectId}&routineId=${routineId}&pipelineId=${routine.routinePipelineId}`, {
+    const apiUrlObj = new URL(apiUrl);
+    const client = new ws_1.default(`ws://${apiUrlObj.hostname}/v1/pipeline-state?projectId=${projectId}&routineId=${routineId}&pipelineId=${routine.routinePipelineId}`, {
         headers: {
             'Authorization': `Bearer ${process.env.DOGU_TOKEN}`
         }

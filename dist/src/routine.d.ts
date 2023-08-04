@@ -1,3 +1,3 @@
 import './types';
-export declare function runRoutine(address: string, projectId: string, routineId: string): Promise<void>;
+export declare function runRoutine(apiUrl: string, projectId: string, routineId: string): Promise<void>;
 //# sourceMappingURL=routine.d.ts.map
