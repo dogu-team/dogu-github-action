@@ -9771,8 +9771,7 @@ async function runRoutine(address, projectId, routineId) {
         }
     });
     client.on('error', (error) => {
-        core.setFailed(error);
-        process.exit(1);
+        console.warn(error);
     });
 }
 exports.runRoutine = runRoutine;
