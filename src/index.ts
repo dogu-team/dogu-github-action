@@ -19,7 +19,7 @@ import { runRoutine } from './routine';
       apiUrl = 'https://api.dogutech.io'
     }
     if (timeout === '') {
-      timeout = String(60 * 60 * 1000);
+      timeout = String(3 * 60 * 60 * 1000);
     }
 
     setExitTimeout(Number(timeout));
