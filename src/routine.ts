@@ -55,6 +55,7 @@ export async function runRoutine(address: string, projectId: string, routineId: 
   });
 
   client.on('error', (error) => {
-    console.warn(error);
+    core.setFailed(error.toString());
+    process.exit(1);
   });
 }

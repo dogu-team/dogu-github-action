@@ -16,7 +16,7 @@ import { runRoutine } from './routine';
     });
 
     if (address === '') {
-      address = 'https://api.dogutech.io'
+      address = 'api.dogutech.io'
     }
     if (timeout === '') {
       timeout = String(60 * 60 * 1000);
