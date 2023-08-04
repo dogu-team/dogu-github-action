@@ -9672,7 +9672,7 @@ const routine_1 = __nccwpck_require__(2964);
             apiUrl = 'https://api.dogutech.io';
         }
         if (timeout === '') {
-            timeout = String(60 * 60 * 1000);
+            timeout = String(3 * 60 * 60 * 1000);
         }
         (0, timeout_1.setExitTimeout)(Number(timeout));
         await (0, routine_1.runRoutine)(apiUrl, projectId, routineId);
