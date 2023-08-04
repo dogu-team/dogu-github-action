@@ -24,7 +24,20 @@ export async function runRoutine(apiUrl: string, projectId: string, routineId: s
   }
 
   const apiUrlObj = new URL(apiUrl);
-  const client = new WebSocket(`ws://${apiUrlObj.hostname}/v1/pipeline-state?projectId=${projectId}&routineId=${routineId}&pipelineId=${routine.routinePipelineId}`, {
+  let socketUrl = '';
+
+  if (apiUrlObj.protocol === 'http:') {
+    socketUrl = apiUrlObj.port === '' ? `ws://${apiUrlObj.hostname}` : `ws://${apiUrlObj.hostname}:${apiUrlObj.port}`;
+  }
+  else if (apiUrlObj.protocol === 'https:') {
+    socketUrl = apiUrlObj.port === '' ? `wss://${apiUrlObj.hostname}` : `wss://${apiUrlObj.hostname}:${apiUrlObj.port}`;
+  }
+  else {
+    core.setFailed(`Unsupported protocol: ${apiUrlObj.protocol}`);
+    process.exit(1);
+  }
+
+  const client = new WebSocket(`${socketUrl}/v1/pipeline-state?projectId=${projectId}&routineId=${routineId}&pipelineId=${routine.routinePipelineId}`, {
     headers: {
       'Authorization': `Bearer ${process.env.DOGU_TOKEN}`
     }
