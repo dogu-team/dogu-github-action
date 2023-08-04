@@ -1,8 +1,8 @@
+import './types'
 import * as core from '@actions/core';
 
-import './types'
-import { getPipeline, runRoutine } from './api';
-import dayjs from 'dayjs';
+import { setExitTimeout } from './timeout';
+import { runRoutine } from './routine';
 
 (async () => {
   try {
@@ -22,52 +22,8 @@ import dayjs from 'dayjs';
       timeout = String(60 * 60 * 1000);
     }
 
-    setTimeout(() => {
-      core.setFailed(`Timeout after ${timeout}ms`);
-      process.exit(1);
-    }, Number(timeout))
-
-    let routinePipelineId: number;
-    try {
-      const routine = await runRoutine(address, projectId, routineId);
-      routinePipelineId = routine.routinePipelineId;
-      console.log(`Spawn pipeline, project-id: ${projectId}, routine-id: ${routineId} routine-pipeline-id: ${routinePipelineId}`)
-    }
-    catch (error: any) {
-      if (error.response) {
-        core.setFailed(error.response.data.message);
-      }
-      else {
-        core.setFailed(error);
-      }
-      return;
-    }
-
-    const checkState = setInterval(async () => {
-      try {
-        const pipeline = await getPipeline(address, projectId, routineId, routinePipelineId);
-
-        switch (pipeline.state) {
-          case 'SUCCESS':
-            console.log(`Routine succeeded. Look at the result: ${pipeline.resultUrl}`);
-            process.exit(0);
-          case 'FAILURE':
-          case 'CANCELLED':
-          case 'SKIPPED':
-            console.log(`Routine ${pipeline.state.toLowerCase()}. Look at the result: ${pipeline.resultUrl}`);
-            clearInterval(checkState);
-            process.exit(1);
-        }
-      }
-      catch (error: any) {
-        if (error.response) {
-          core.setFailed(error.response.data.message);
-        }
-        else {
-          core.setFailed(error);
-        }
-      }
-    }, 5 * 1000)
+    setExitTimeout(Number(timeout));
+    await runRoutine(address, projectId, routineId);
 
   } catch (error: any) {
     if (error.response) {
@@ -76,5 +32,7 @@ import dayjs from 'dayjs';
     else {
       core.setFailed(error);
     }
+
+    process.exit(1);
   }
 })();

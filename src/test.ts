@@ -1,43 +1,49 @@
 import './types'
-import { getPipeline, runRoutine } from './api';
+import { API } from './api';
+import WebSocket from "ws";
 
 (async () => {
-  const address = 'localhost:4000'
-  const projectId = 'a5792d9b-a8e8-4ab8-b790-3a503c5a8789';
-  const routineId = 'c3218f5f-02bf-43a1-9eb3-acd2753e7567';
+  const address = 'http://localhost:4000'
+  const projectId = '9e90209a-66bb-4e9b-8f35-bbc872a499b9';
+  const routineId = '8a2127c0-c2f9-46e1-b056-dfc0c1209c19';
   const timeout = 60 * 60 * 1000;
 
   setTimeout(() => {
     process.exit(1);
   }, timeout)
 
-  let routinePipelineId: number;
+  let routine: API.RunRoutine;
   try {
-    const routine = await runRoutine(address, projectId, routineId);
-    routinePipelineId = routine.routinePipelineId;
+    routine = await API.runRoutine(address, projectId, routineId);
   }
   catch (error: any) {
-    console.error(error.response.data.message)
+    if (error.response) {
+      console.error(error.response.data.message)
+    }
+    else {
+      console.error(error)
+    }
     return;
   }
 
-  const checkState = setInterval(async () => {
-    try {
-      const pipeline = await getPipeline(address, projectId, routineId, routinePipelineId);
+  const wsc = new WebSocket(`ws://localhost:4000/v1/pipeline-state?projectId=${projectId}&routineId=${routineId}&pipelineId=${routine.routinePipelineId}`, {
+    headers: {
+      'Authorization': `Bearer dogu-project-token-xo5kwjv5zhathsp8sw3k6m12j038`
+    }
+  });
 
-      switch (pipeline.state) {
-        case 'SUCCESS':
-          process.exit(0);
-        case 'FAILURE':
-        case 'CANCELLED':
-        case 'SKIPPED':
-          console.log(`Routine failed with state: ${pipeline.state}`);
-          clearInterval(checkState);
-          return;
-      }
-    }
-    catch (error: any) {
-      console.error(error.response.data.message)
-    }
-  }, 5 * 1000)
+  wsc.on('error', console.error);
+
+  wsc.on('close', (code, message) => {
+    console.log('disconnected', code);
+  })
+
+  wsc.on('open', function open() {
+    wsc.send('something');
+  });
+
+  wsc.on('message', function message(data) {
+    console.log('received: %s', data);
+  });
+
 })();
