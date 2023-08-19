@@ -9603,14 +9603,53 @@ function socketOnError() {
 
 "use strict";
 
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.API = void 0;
 const axios_1 = __importDefault(__nccwpck_require__(8757));
+const ws_1 = __importDefault(__nccwpck_require__(8867));
+const core = __importStar(__nccwpck_require__(2186));
 var API;
 (function (API) {
+    function getSocketUrl(apiUrl) {
+        const apiUrlObj = new URL(apiUrl);
+        let socketUrl = '';
+        if (apiUrlObj.protocol === 'http:') {
+            socketUrl = apiUrlObj.port === '' ? `ws://${apiUrlObj.hostname}` : `ws://${apiUrlObj.hostname}:${apiUrlObj.port}`;
+        }
+        else if (apiUrlObj.protocol === 'https:') {
+            socketUrl = apiUrlObj.port === '' ? `wss://${apiUrlObj.hostname}` : `wss://${apiUrlObj.hostname}:${apiUrlObj.port}`;
+        }
+        else {
+            core.setFailed(`Unsupported protocol: ${apiUrlObj.protocol}`);
+            process.exit(1);
+        }
+    }
     async function runRoutine(apiUrl, projectId, routineId) {
         const result = await axios_1.default.post(`${apiUrl}/v1/projects/${projectId}/routines/${routineId}/pipelines`, undefined, {
             headers: {
@@ -9620,6 +9659,42 @@ var API;
         return result.data;
     }
     API.runRoutine = runRoutine;
+    async function connectRoutine(apiUrl, projectId, routineId, routine) {
+        const socketUrl = getSocketUrl(apiUrl);
+        const client = new ws_1.default(`${socketUrl}/v1/pipeline-state?projectId=${projectId}&routineId=${routineId}&pipelineId=${routine.routinePipelineId}`, {
+            headers: {
+                'Authorization': `Bearer ${process.env.DOGU_TOKEN}`
+            }
+        });
+        client.on('message', (state) => {
+            const pipelineState = JSON.parse(state.toString());
+            switch (pipelineState.state) {
+                case 'SUCCESS':
+                    console.log(`Routine succeeded. Look at the result: ${pipelineState.resultUrl}`);
+                    process.exit(0);
+                case 'FAILURE':
+                case 'CANCELLED':
+                case 'SKIPPED':
+                    console.log(`Routine ${pipelineState.state.toLowerCase()}. Look at the result: ${pipelineState.resultUrl}`);
+                    process.exit(1);
+            }
+        });
+        client.on('close', (code, reason) => {
+            if (code === 1000) {
+                process.exit(0);
+            }
+            else {
+                core.setFailed(reason.toString());
+                process.exit(1);
+            }
+        });
+        client.on('error', (error) => {
+            console.error(error);
+            core.setFailed(error.toString());
+            process.exit(1);
+        });
+    }
+    API.connectRoutine = connectRoutine;
 })(API = exports.API || (exports.API = {}));
 
 
@@ -9719,14 +9794,10 @@ var __importStar = (this && this.__importStar) || function (mod) {
     __setModuleDefault(result, mod);
     return result;
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.runRoutine = void 0;
 __nccwpck_require__(5077);
 const core = __importStar(__nccwpck_require__(2186));
-const ws_1 = __importDefault(__nccwpck_require__(8867));
 const api_1 = __nccwpck_require__(8229);
 async function runRoutine(apiUrl, projectId, routineId) {
     let routine;
@@ -9743,50 +9814,7 @@ async function runRoutine(apiUrl, projectId, routineId) {
         }
         process.exit(1);
     }
-    const apiUrlObj = new URL(apiUrl);
-    let socketUrl = '';
-    if (apiUrlObj.protocol === 'http:') {
-        socketUrl = apiUrlObj.port === '' ? `ws://${apiUrlObj.hostname}` : `ws://${apiUrlObj.hostname}:${apiUrlObj.port}`;
-    }
-    else if (apiUrlObj.protocol === 'https:') {
-        socketUrl = apiUrlObj.port === '' ? `wss://${apiUrlObj.hostname}` : `wss://${apiUrlObj.hostname}:${apiUrlObj.port}`;
-    }
-    else {
-        core.setFailed(`Unsupported protocol: ${apiUrlObj.protocol}`);
-        process.exit(1);
-    }
-    const client = new ws_1.default(`${socketUrl}/v1/pipeline-state?projectId=${projectId}&routineId=${routineId}&pipelineId=${routine.routinePipelineId}`, {
-        headers: {
-            'Authorization': `Bearer ${process.env.DOGU_TOKEN}`
-        }
-    });
-    client.on('message', (state) => {
-        const pipelineState = JSON.parse(state.toString());
-        switch (pipelineState.state) {
-            case 'SUCCESS':
-                console.log(`Routine succeeded. Look at the result: ${pipelineState.resultUrl}`);
-                process.exit(0);
-            case 'FAILURE':
-            case 'CANCELLED':
-            case 'SKIPPED':
-                console.log(`Routine ${pipelineState.state.toLowerCase()}. Look at the result: ${pipelineState.resultUrl}`);
-                process.exit(1);
-        }
-    });
-    client.on('close', (code, reason) => {
-        if (code === 1000) {
-            process.exit(0);
-        }
-        else {
-            core.setFailed(reason.toString());
-            process.exit(1);
-        }
-    });
-    client.on('error', (error) => {
-        console.error(error);
-        core.setFailed(error.toString());
-        process.exit(1);
-    });
+    api_1.API.connectRoutine(apiUrl, projectId, routineId, routine);
 }
 exports.runRoutine = runRoutine;
 
