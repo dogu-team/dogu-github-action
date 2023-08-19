@@ -9649,6 +9649,7 @@ var API;
             core.setFailed(`Unsupported protocol: ${apiUrlObj.protocol}`);
             process.exit(1);
         }
+        return socketUrl;
     }
     async function runRoutine(apiUrl, projectId, routineId) {
         const result = await axios_1.default.post(`${apiUrl}/v1/projects/${projectId}/routines/${routineId}/pipelines`, undefined, {
@@ -9659,7 +9660,7 @@ var API;
         return result.data;
     }
     API.runRoutine = runRoutine;
-    async function connectRoutine(apiUrl, projectId, routineId, routine) {
+    function connectRoutine(apiUrl, projectId, routineId, routine) {
         const socketUrl = getSocketUrl(apiUrl);
         const client = new ws_1.default(`${socketUrl}/v1/pipeline-state?projectId=${projectId}&routineId=${routineId}&pipelineId=${routine.routinePipelineId}`, {
             headers: {
