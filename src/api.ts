@@ -15,7 +15,7 @@ export module API {
     createdAt: Date;
   }
 
-  function getSocketUrl(apiUrl: string) {
+  function getSocketUrl(apiUrl: string): string {
     const apiUrlObj = new URL(apiUrl);
     let socketUrl = '';
   
@@ -29,6 +29,8 @@ export module API {
       core.setFailed(`Unsupported protocol: ${apiUrlObj.protocol}`);
       process.exit(1);
     }
+
+    return socketUrl;
   }
 
   export async function runRoutine(apiUrl: string, projectId: string, routineId: string): Promise<RunRoutine> {
@@ -41,7 +43,7 @@ export module API {
     return result.data;
   }
 
-  export async function connectRoutine(apiUrl: string, projectId: string, routineId: string, routine: RunRoutine) {
+  export function connectRoutine(apiUrl: string, projectId: string, routineId: string, routine: RunRoutine) {
     const socketUrl = getSocketUrl(apiUrl);
 
     const client = new WebSocket(`${socketUrl}/v1/pipeline-state?projectId=${projectId}&routineId=${routineId}&pipelineId=${routine.routinePipelineId}`, {
