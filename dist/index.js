@@ -9741,7 +9741,7 @@ const option_1 = __nccwpck_require__(3451);
             option_1.DoguOption.TIMEOUT_MILLISECONDS = timeout;
         }
         console.log(`API URL: ${option_1.DoguOption.API_URL}`);
-        (0, timeout_1.setExitTimeout)(Number(timeout));
+        (0, timeout_1.setExitTimeout)(Number(option_1.DoguOption.TIMEOUT_MILLISECONDS));
         await (0, routine_1.runRoutine)(projectId, routineId);
     }
     catch (error) {
