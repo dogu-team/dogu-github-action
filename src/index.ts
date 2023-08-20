@@ -1,8 +1,9 @@
-import './types'
+import './types';
 import * as core from '@actions/core';
 
 import { setExitTimeout } from './timeout';
 import { runRoutine } from './routine';
+import { DoguOption } from './option';
 
 (async () => {
   try {
@@ -15,21 +16,21 @@ import { runRoutine } from './routine';
       required: false,
     });
 
-    if (apiUrl === '') {
-      apiUrl = 'https://api.dogutech.io'
+    if (apiUrl !== '') {
+      DoguOption.API_URL = apiUrl;
     }
-    if (timeout === '') {
-      timeout = String(3 * 60 * 60 * 1000);
+    if (timeout !== '') {
+      DoguOption.TIMEOUT_MILLISECONDS = timeout;
     }
 
+    console.log(`API URL: ${DoguOption.API_URL}`);
     setExitTimeout(Number(timeout));
-    await runRoutine(apiUrl, projectId, routineId);
 
+    await runRoutine(projectId, routineId);
   } catch (error: any) {
     if (error.response) {
       core.setFailed(error.response.data.message);
-    }
-    else {
+    } else {
       core.setFailed(error);
     }
 
