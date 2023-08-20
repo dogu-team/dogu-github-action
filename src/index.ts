@@ -24,7 +24,7 @@ import { DoguOption } from './option';
     }
 
     console.log(`API URL: ${DoguOption.API_URL}`);
-    setExitTimeout(Number(timeout));
+    setExitTimeout(Number(DoguOption.TIMEOUT_MILLISECONDS));
 
     await runRoutine(projectId, routineId);
   } catch (error: any) {
