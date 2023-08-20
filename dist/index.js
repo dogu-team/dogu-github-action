@@ -9634,38 +9634,27 @@ exports.API = void 0;
 const axios_1 = __importDefault(__nccwpck_require__(8757));
 const ws_1 = __importDefault(__nccwpck_require__(8867));
 const core = __importStar(__nccwpck_require__(2186));
+const option_1 = __nccwpck_require__(3451);
 var API;
 (function (API) {
-    function getSocketUrl(apiUrl) {
-        const apiUrlObj = new URL(apiUrl);
-        let socketUrl = '';
-        if (apiUrlObj.protocol === 'http:') {
-            socketUrl = apiUrlObj.port === '' ? `ws://${apiUrlObj.hostname}` : `ws://${apiUrlObj.hostname}:${apiUrlObj.port}`;
-        }
-        else if (apiUrlObj.protocol === 'https:') {
-            socketUrl = apiUrlObj.port === '' ? `wss://${apiUrlObj.hostname}` : `wss://${apiUrlObj.hostname}:${apiUrlObj.port}`;
-        }
-        else {
-            core.setFailed(`Unsupported protocol: ${apiUrlObj.protocol}`);
-            process.exit(1);
-        }
-        return socketUrl;
-    }
-    async function runRoutine(apiUrl, projectId, routineId) {
-        const result = await axios_1.default.post(`${apiUrl}/v1/projects/${projectId}/routines/${routineId}/pipelines`, undefined, {
+    async function runRoutine(projectId, routineId) {
+        const result = await axios_1.default.post(`${option_1.DoguOption.API_URL}/v1/projects/${projectId}/routines/${routineId}/pipelines`, undefined, {
             headers: {
-                'Authorization': `Bearer ${process.env.DOGU_TOKEN}`,
-            }
+                Authorization: `Bearer ${option_1.DoguOption.DOGU_TOKEN}`,
+            },
         });
         return result.data;
     }
     API.runRoutine = runRoutine;
-    function connectRoutine(apiUrl, projectId, routineId, routine) {
-        const socketUrl = getSocketUrl(apiUrl);
+    function connectRoutine(projectId, routineId, routine) {
+        const socketUrl = option_1.DoguOption.getWebSocketUrl();
         const client = new ws_1.default(`${socketUrl}/v1/pipeline-state?projectId=${projectId}&routineId=${routineId}&pipelineId=${routine.routinePipelineId}`, {
             headers: {
-                'Authorization': `Bearer ${process.env.DOGU_TOKEN}`
-            }
+                Authorization: `Bearer ${option_1.DoguOption.DOGU_TOKEN}`,
+            },
+        });
+        client.on('open', () => {
+            console.log(`Wait for routine to finish`);
         });
         client.on('message', (state) => {
             const pipelineState = JSON.parse(state.toString());
@@ -9734,6 +9723,7 @@ __nccwpck_require__(5077);
 const core = __importStar(__nccwpck_require__(2186));
 const timeout_1 = __nccwpck_require__(6879);
 const routine_1 = __nccwpck_require__(2964);
+const option_1 = __nccwpck_require__(3451);
 (async () => {
     try {
         const projectId = core.getInput('project-id');
@@ -9744,14 +9734,15 @@ const routine_1 = __nccwpck_require__(2964);
         let timeout = core.getInput('timeout', {
             required: false,
         });
-        if (apiUrl === '') {
-            apiUrl = 'https://api.dogutech.io';
+        if (apiUrl !== '') {
+            option_1.DoguOption.API_URL = apiUrl;
         }
-        if (timeout === '') {
-            timeout = String(3 * 60 * 60 * 1000);
+        if (timeout !== '') {
+            option_1.DoguOption.TIMEOUT_MILLISECONDS = timeout;
         }
+        console.log(`API URL: ${option_1.DoguOption.API_URL}`);
         (0, timeout_1.setExitTimeout)(Number(timeout));
-        await (0, routine_1.runRoutine)(apiUrl, projectId, routineId);
+        await (0, routine_1.runRoutine)(projectId, routineId);
     }
     catch (error) {
         if (error.response) {
@@ -9763,6 +9754,44 @@ const routine_1 = __nccwpck_require__(2964);
         process.exit(1);
     }
 })();
+
+
+/***/ }),
+
+/***/ 3451:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.DoguOption = void 0;
+var DoguOption;
+(function (DoguOption) {
+    DoguOption.DOGU_TOKEN = process.env.DOGU_TOKEN;
+    DoguOption.API_URL = 'https://api.dogutech.io';
+    DoguOption.TIMEOUT_MILLISECONDS = String(3 * 60 * 60 * 1000);
+    function getWebSocketUrl() {
+        const apiURL = new URL(DoguOption.API_URL);
+        let socketUrl = '';
+        if (apiURL.protocol === 'http:') {
+            socketUrl =
+                apiURL.port === ''
+                    ? `ws://${apiURL.hostname}`
+                    : `ws://${apiURL.hostname}:${apiURL.port}`;
+        }
+        else if (apiURL.protocol === 'https:') {
+            socketUrl =
+                apiURL.port === ''
+                    ? `wss://${apiURL.hostname}`
+                    : `wss://${apiURL.hostname}:${apiURL.port}`;
+        }
+        else {
+            console.error(`Unsupported protocol: ${apiURL.protocol}`);
+        }
+        return socketUrl;
+    }
+    DoguOption.getWebSocketUrl = getWebSocketUrl;
+})(DoguOption = exports.DoguOption || (exports.DoguOption = {}));
 
 
 /***/ }),
@@ -9800,10 +9829,10 @@ exports.runRoutine = void 0;
 __nccwpck_require__(5077);
 const core = __importStar(__nccwpck_require__(2186));
 const api_1 = __nccwpck_require__(8229);
-async function runRoutine(apiUrl, projectId, routineId) {
+async function runRoutine(projectId, routineId) {
     let routine;
     try {
-        routine = await api_1.API.runRoutine(apiUrl, projectId, routineId);
+        routine = await api_1.API.runRoutine(projectId, routineId);
         console.log(`Spawn pipeline, project-id: ${projectId}, routine-id: ${routineId} routine-pipeline-id: ${routine.routinePipelineId}`);
     }
     catch (error) {
@@ -9815,7 +9844,7 @@ async function runRoutine(apiUrl, projectId, routineId) {
         }
         process.exit(1);
     }
-    api_1.API.connectRoutine(apiUrl, projectId, routineId, routine);
+    api_1.API.connectRoutine(projectId, routineId, routine);
 }
 exports.runRoutine = runRoutine;
 

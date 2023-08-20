@@ -8,7 +8,7 @@ export declare module API {
         creatorId: string;
         createdAt: Date;
     };
-    function runRoutine(apiUrl: string, projectId: string, routineId: string): Promise<RunRoutine>;
-    function connectRoutine(apiUrl: string, projectId: string, routineId: string, routine: RunRoutine): void;
+    function runRoutine(projectId: string, routineId: string): Promise<RunRoutine>;
+    function connectRoutine(projectId: string, routineId: string, routine: RunRoutine): void;
 }
 //# sourceMappingURL=api.d.ts.map
