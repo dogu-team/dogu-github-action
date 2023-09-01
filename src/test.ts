@@ -1,14 +1,23 @@
 import './types';
 import { API } from './api';
 import WebSocket from 'ws';
-import { runRoutine } from './routine';
+import fs from "fs/promises"
+
 import { DoguOption } from './option';
+import path from 'path';
 
 (async () => {
+  const projectId = 'a5253e3a-33b7-4117-a13d-f5c5d75e8c56';
   DoguOption.API_URL = 'http://localhost:4000';
-  const projectId = '9e90209a-66bb-4e9b-8f35-bbc872a499b9';
-  const routineId = '8a2127c0-c2f9-46e1-b056-dfc0c1209c19';
-  process.env.DOGU_TOKEN = 'dogu-project-token-xo5kwjv5zhathsp8sw3k6m12j038';
+  DoguOption.DOGU_TOKEN = 'dogu-project-token-h0ktyruqmfshn29v43zbzmbigm56';
 
-  await runRoutine(projectId, routineId);
+  const filePath = './warehouseinvasion.apk';
+  const application = await fs.readFile(filePath);
+  const applicationName = path.basename(filePath);
+  try {
+    await API.uploadApplication(projectId, application, applicationName)
+  }
+  catch (error: any) {
+    console.log(error.response.data.message)
+  }
 })();
