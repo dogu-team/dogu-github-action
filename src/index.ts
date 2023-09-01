@@ -1,14 +1,14 @@
 import './types';
 import * as core from '@actions/core';
 
+import { Template } from "./template"
 import { setExitTimeout } from './timeout';
-import { runRoutine } from './routine';
 import { DoguOption } from './option';
 
 (async () => {
   try {
-    const projectId = core.getInput('project-id');
-    const routineId = core.getInput('routine-id');
+    const template = core.getInput('template') as keyof typeof Template;
+
     let apiUrl = core.getInput('api-url', {
       required: false,
     });
@@ -26,7 +26,7 @@ import { DoguOption } from './option';
     console.log(`API URL: ${DoguOption.API_URL}`);
     setExitTimeout(Number(DoguOption.TIMEOUT_MILLISECONDS));
 
-    await runRoutine(projectId, routineId);
+    await Template[template]();
   } catch (error: any) {
     if (error.response) {
       core.setFailed(error.response.data.message);

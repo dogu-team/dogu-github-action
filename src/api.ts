@@ -1,6 +1,8 @@
 import axios from 'axios';
 import WebSocket from 'ws';
 import * as core from '@actions/core';
+import FormData from 'form-data';
+import fs from "fs/promises"
 
 import { PipelieState } from './types';
 import { DoguOption } from './option';
@@ -20,7 +22,7 @@ export module API {
     projectId: string,
     routineId: string,
   ): Promise<RunRoutine> {
-    const result = await axios.post<RunRoutine>(
+    const response = await axios.post<RunRoutine>(
       `${DoguOption.API_URL}/v1/projects/${projectId}/routines/${routineId}/pipelines`,
       undefined,
       {
@@ -30,7 +32,7 @@ export module API {
       },
     );
 
-    return result.data;
+    return response.data;
   }
 
   export function connectRoutine(
@@ -66,8 +68,7 @@ export module API {
         case 'CANCELLED':
         case 'SKIPPED':
           console.log(
-            `Routine ${pipelineState.state.toLowerCase()}. Look at the result: ${
-              pipelineState.resultUrl
+            `Routine ${pipelineState.state.toLowerCase()}. Look at the result: ${pipelineState.resultUrl
             }`,
           );
           process.exit(1);
@@ -88,5 +89,23 @@ export module API {
       core.setFailed(error.toString());
       process.exit(1);
     });
+  }
+
+  export async function uploadApplication(projectId: string, application: Buffer, applicationName: string) {
+    const form = new FormData();
+    form.append('file', application, {
+      'filename': applicationName,
+    });
+
+    const response = await axios.put(`${DoguOption.API_URL}/v1/projects/${projectId}/applications`, form, {
+      headers: {
+        ...form.getHeaders(),
+        "Content-Type": "multipart/form-data",
+        Authorization: `Bearer ${DoguOption.DOGU_TOKEN}`,
+      },
+    }
+    )
+
+    return response;
   }
 }

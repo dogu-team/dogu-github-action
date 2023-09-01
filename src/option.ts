@@ -1,5 +1,5 @@
 export module DoguOption {
-  export const DOGU_TOKEN = process.env.DOGU_TOKEN;
+  export let DOGU_TOKEN = process.env.DOGU_TOKEN;
   export let API_URL: string = 'https://api.dogutech.io';
   export let TIMEOUT_MILLISECONDS: string = String(3 * 60 * 60 * 1000);
 
