@@ -1,11 +1,14 @@
 name: 'Dogu Github Action'
 description: 'Dogu Github Action'
 inputs:
-  project-id:
+  template:
     required: true
+    description: 'Action Template'
+  project-id:
+    required: false
     description: 'Project ID'
   routine-id:
-    required: true
+    required: false
     description: 'Routine ID'
   api-url:
     required: false
