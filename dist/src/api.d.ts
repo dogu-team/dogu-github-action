@@ -1,3 +1,5 @@
+/// <reference types="node" />
+import axios from 'axios';
 export declare module API {
     type RunRoutine = {
         routinePipelineId: number;
@@ -10,5 +12,6 @@ export declare module API {
     };
     function runRoutine(projectId: string, routineId: string): Promise<RunRoutine>;
     function connectRoutine(projectId: string, routineId: string, routine: RunRoutine): void;
+    function uploadApplication(projectId: string, application: Buffer, applicationName: string): Promise<axios.AxiosResponse<any, any>>;
 }
 //# sourceMappingURL=api.d.ts.map

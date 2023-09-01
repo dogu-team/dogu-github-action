@@ -9634,16 +9634,17 @@ exports.API = void 0;
 const axios_1 = __importDefault(__nccwpck_require__(8757));
 const ws_1 = __importDefault(__nccwpck_require__(8867));
 const core = __importStar(__nccwpck_require__(2186));
+const form_data_1 = __importDefault(__nccwpck_require__(4334));
 const option_1 = __nccwpck_require__(3451);
 var API;
 (function (API) {
     async function runRoutine(projectId, routineId) {
-        const result = await axios_1.default.post(`${option_1.DoguOption.API_URL}/v1/projects/${projectId}/routines/${routineId}/pipelines`, undefined, {
+        const response = await axios_1.default.post(`${option_1.DoguOption.API_URL}/v1/projects/${projectId}/routines/${routineId}/pipelines`, undefined, {
             headers: {
                 Authorization: `Bearer ${option_1.DoguOption.DOGU_TOKEN}`,
             },
         });
-        return result.data;
+        return response.data;
     }
     API.runRoutine = runRoutine;
     function connectRoutine(projectId, routineId, routine) {
@@ -9685,6 +9686,21 @@ var API;
         });
     }
     API.connectRoutine = connectRoutine;
+    async function uploadApplication(projectId, application, applicationName) {
+        const form = new form_data_1.default();
+        form.append('file', application, {
+            'filename': applicationName,
+        });
+        const response = await axios_1.default.put(`${option_1.DoguOption.API_URL}/v1/projects/${projectId}/applications`, form, {
+            headers: {
+                ...form.getHeaders(),
+                "Content-Type": "multipart/form-data",
+                Authorization: `Bearer ${option_1.DoguOption.DOGU_TOKEN}`,
+            },
+        });
+        return response;
+    }
+    API.uploadApplication = uploadApplication;
 })(API = exports.API || (exports.API = {}));
 
 
@@ -9721,13 +9737,12 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 __nccwpck_require__(5077);
 const core = __importStar(__nccwpck_require__(2186));
+const template_1 = __nccwpck_require__(3932);
 const timeout_1 = __nccwpck_require__(6879);
-const routine_1 = __nccwpck_require__(2964);
 const option_1 = __nccwpck_require__(3451);
 (async () => {
     try {
-        const projectId = core.getInput('project-id');
-        const routineId = core.getInput('routine-id');
+        const template = core.getInput('template');
         let apiUrl = core.getInput('api-url', {
             required: false,
         });
@@ -9742,7 +9757,7 @@ const option_1 = __nccwpck_require__(3451);
         }
         console.log(`API URL: ${option_1.DoguOption.API_URL}`);
         (0, timeout_1.setExitTimeout)(Number(option_1.DoguOption.TIMEOUT_MILLISECONDS));
-        await (0, routine_1.runRoutine)(projectId, routineId);
+        await template_1.Template[template]();
     }
     catch (error) {
         if (error.response) {
@@ -9796,7 +9811,7 @@ var DoguOption;
 
 /***/ }),
 
-/***/ 2964:
+/***/ 3932:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -9824,29 +9839,54 @@ var __importStar = (this && this.__importStar) || function (mod) {
     __setModuleDefault(result, mod);
     return result;
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.runRoutine = void 0;
-__nccwpck_require__(5077);
+exports.Template = void 0;
 const core = __importStar(__nccwpck_require__(2186));
+const promises_1 = __importDefault(__nccwpck_require__(3292));
 const api_1 = __nccwpck_require__(8229);
-async function runRoutine(projectId, routineId) {
-    let routine;
-    try {
-        routine = await api_1.API.runRoutine(projectId, routineId);
-        console.log(`Spawn pipeline, project-id: ${projectId}, routine-id: ${routineId} routine-pipeline-id: ${routine.routinePipelineId}`);
-    }
-    catch (error) {
-        if (error.response) {
-            core.setFailed(error.response.data.message);
+const path_1 = __importDefault(__nccwpck_require__(1017));
+exports.Template = {
+    'run_routine': async () => {
+        let routine;
+        const projectId = core.getInput('project-id');
+        const routineId = core.getInput('routine-id');
+        try {
+            routine = await api_1.API.runRoutine(projectId, routineId);
+            console.log(`Spawn pipeline, project-id: ${projectId}, routine-id: ${routineId} routine-pipeline-id: ${routine.routinePipelineId}`);
         }
-        else {
-            core.setFailed(error);
+        catch (error) {
+            if (error.response) {
+                core.setFailed(error.response.data.message);
+            }
+            else {
+                core.setFailed(error);
+            }
+            process.exit(1);
         }
-        process.exit(1);
+        api_1.API.connectRoutine(projectId, routineId, routine);
+    },
+    'upload_application': async () => {
+        const projectId = core.getInput('project-id');
+        const filePath = core.getInput('file-path');
+        try {
+            const application = await promises_1.default.readFile(filePath);
+            const applicationName = path_1.default.basename(filePath);
+            const response = await api_1.API.uploadApplication(projectId, application, applicationName);
+        }
+        catch (error) {
+            if (error.response) {
+                core.setFailed(error.response.data.message);
+            }
+            else {
+                core.setFailed(error);
+            }
+            process.exit(1);
+        }
     }
-    api_1.API.connectRoutine(projectId, routineId, routine);
-}
-exports.runRoutine = runRoutine;
+};
 
 
 /***/ }),
@@ -9964,6 +10004,14 @@ module.exports = require("events");
 
 "use strict";
 module.exports = require("fs");
+
+/***/ }),
+
+/***/ 3292:
+/***/ ((module) => {
+
+"use strict";
+module.exports = require("fs/promises");
 
 /***/ }),
 
