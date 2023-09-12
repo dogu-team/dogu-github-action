@@ -31,11 +31,12 @@ export const Template = {
   'upload_application': async () => {
     const projectId = core.getInput('project-id');
     const filePath = core.getInput('file-path');
+    const isLatest = core.getInput('is-latest');
 
     try {
       const application = await fs.readFile(filePath);
       const applicationName = path.basename(filePath);
-      const response = await API.uploadApplication(projectId, application, applicationName);
+      const response = await API.uploadApplication(projectId, application, applicationName, isLatest === 'true');
     }
     catch (error: any) {
       if (error.response) {

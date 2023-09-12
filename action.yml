@@ -13,6 +13,9 @@ inputs:
   api-url:
     required: false
     description: 'API URL'
+  is-latest:
+    required: false
+    description: 'Upload app as latest'
   timeout:
     require: false
     description: 'Timeout ms'
