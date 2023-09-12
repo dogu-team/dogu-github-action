@@ -2,7 +2,6 @@ import axios from 'axios';
 import WebSocket from 'ws';
 import * as core from '@actions/core';
 import FormData from 'form-data';
-import fs from "fs/promises"
 
 import { PipelieState } from './types';
 import { DoguOption } from './option';
@@ -91,11 +90,12 @@ export module API {
     });
   }
 
-  export async function uploadApplication(projectId: string, application: Buffer, applicationName: string) {
+  export async function uploadApplication(projectId: string, application: Buffer, applicationName: string, isLatest: boolean) {
     const form = new FormData();
     form.append('file', application, {
       'filename': applicationName,
     });
+    form.append('isLatest', isLatest.toString());
 
     const response = await axios.put(`${DoguOption.API_URL}/v1/projects/${projectId}/applications`, form, {
       headers: {

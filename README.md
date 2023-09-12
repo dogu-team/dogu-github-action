@@ -32,6 +32,7 @@ Integrate github action with Dogu
 
 - `project-id`
 - `file-path`
+- `is-latest`
 
 # Env
 
@@ -48,6 +49,7 @@ Integrate github action with Dogu
     template: upload_application
     project-id: 'a5792d9b-a8e8-4ab8-b790-3a503c5a8789'
     file-path: '/usr/project/build/app.apk'
+    is-latest: true
   env:
     DOGU_TOKEN: ${{ secrets.DOGU_TOKEN }}
 ```

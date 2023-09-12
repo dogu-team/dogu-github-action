@@ -15,7 +15,7 @@ import path from 'path';
   const application = await fs.readFile(filePath);
   const applicationName = path.basename(filePath);
   try {
-    await API.uploadApplication(projectId, application, applicationName)
+    await API.uploadApplication(projectId, application, applicationName, true);
   }
   catch (error: any) {
     console.log(error.response.data.message)
